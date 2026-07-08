@@ -1,0 +1,32 @@
+# --- Python ----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+
+# --- Django ------------------------------------------------------------------
+staticfiles/
+db.sqlite3
+*.log
+
+# --- Données & modèles (JAMAIS sur GitHub : trop lourds) --------------------
+# Dataset Kaggle "Garbage Classification"
+dataset/
+data/
+*.zip
+
+# Poids du modèle : à partager via Git LFS ou une release GitHub,
+# pas dans l'historique git classique.
+*.h5
+*.keras
+
+# Retours utilisateurs collectés en local (images + feedback.jsonl)
+var/
+
+# --- Environnement / IDE ------------------------------------------------------
+.env
+.idea/
+.vscode/
+.DS_Store
