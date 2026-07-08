@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img" aria-label="Pot de confiture">
+  <desc>materiau:glass — image factice de demonstration (mock)</desc>
+  <rect width="480" height="480" rx="28" fill="#FDEDE4"/>
+  <ellipse cx="240" cy="404" rx="130" ry="16" fill="#000" opacity="0.08"/>
+
+  <rect x="184" y="120" width="112" height="34" rx="10" fill="#C0392B"/>
+  <rect x="192" y="154" width="96" height="14" fill="#E8B4A8"/>
+  <path d="M180 168 h120 q10 20 10 42 v128 q0 28 -28 28 h-84 q-28 0 -28 -28 v-128 q0 -22 10 -42 z" fill="#E58F4E"/>
+  <rect x="196" y="222" width="88" height="76" rx="8" fill="#FBF3E4"/>
+  <circle cx="228" cy="252" r="12" fill="#C0392B"/>
+  <circle cx="252" cy="266" r="9" fill="#C0392B"/>
+  <rect x="192" y="184" width="12" height="160" rx="6" fill="#FFFFFF" opacity="0.4"/>
+</svg>

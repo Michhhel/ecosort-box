@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img" aria-label="Brique de lait">
+  <desc>materiau:cardboard — image factice de demonstration (mock)</desc>
+  <rect width="480" height="480" rx="28" fill="#EAF1F7"/>
+  <ellipse cx="240" cy="404" rx="130" ry="16" fill="#000" opacity="0.08"/>
+
+  <path d="M176 176 l64 -44 h96 l-64 44 z" fill="#9FC4E8"/>
+  <path d="M272 132 l64 44 v20 l-64 -44 z" fill="#7FA8D4"/>
+  <path d="M176 176 h96 v200 h-96 z" fill="#FFFFFF"/>
+  <path d="M272 176 l64 20 v180 l-64 0 z" fill="#DCE8F4"/>
+  <rect x="176" y="240" width="96" height="70" fill="#2F7FD6"/>
+  <circle cx="224" cy="275" r="22" fill="#FFFFFF"/>
+  <rect x="192" y="330" width="64" height="8" rx="4" fill="#9FC4E8"/>
+</svg>

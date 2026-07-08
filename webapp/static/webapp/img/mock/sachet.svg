@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img" aria-label="Sachet plastique">
+  <desc>materiau:trash — image factice de demonstration (mock)</desc>
+  <rect width="480" height="480" rx="28" fill="#F0EEEA"/>
+  <ellipse cx="240" cy="404" rx="130" ry="16" fill="#000" opacity="0.08"/>
+
+  <path d="M168 176 q-16 110 8 196 q64 18 128 0 q24 -86 8 -196 z" fill="#DCE4E8"/>
+  <path d="M168 176 l20 -56 q8 -18 26 -12 l10 4 q-22 26 -20 64 z" fill="#C8D2D8"/>
+  <path d="M312 176 l-20 -56 q-8 -18 -26 -12 l-10 4 q22 26 20 64 z" fill="#C8D2D8"/>
+  <path d="M204 176 q-4 -44 20 -66 q26 -8 34 8 q16 24 18 58" fill="none" stroke="#AEB9C0" stroke-width="10" stroke-linecap="round"/>
+  <path d="M196 230 q44 18 88 0" stroke="#FFFFFF" stroke-width="8" fill="none" opacity="0.7" stroke-linecap="round"/>
+</svg>

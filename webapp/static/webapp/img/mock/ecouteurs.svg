@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img" aria-label="Ecouteurs sans fil">
+  <desc>materiau:electronique — image factice de demonstration (mock)</desc>
+  <rect width="480" height="480" rx="28" fill="#EDF1EE"/>
+  <ellipse cx="240" cy="404" rx="130" ry="16" fill="#000" opacity="0.08"/>
+
+  <rect x="140" y="220" width="200" height="140" rx="34" fill="#FFFFFF"/>
+  <rect x="140" y="220" width="200" height="26" rx="13" fill="#D7DED8"/>
+  <g>
+    <circle cx="206" cy="180" r="34" fill="#FFFFFF" stroke="#D7DED8" stroke-width="4"/>
+    <circle cx="206" cy="180" r="14" fill="#1F6B4A"/>
+    <rect x="196" y="206" width="20" height="52" rx="10" fill="#FFFFFF" stroke="#D7DED8" stroke-width="4"/>
+    <circle cx="274" cy="180" r="34" fill="#FFFFFF" stroke="#D7DED8" stroke-width="4"/>
+    <circle cx="274" cy="180" r="14" fill="#1F6B4A"/>
+    <rect x="264" y="206" width="20" height="52" rx="10" fill="#FFFFFF" stroke="#D7DED8" stroke-width="4"/>
+  </g>
+</svg>
