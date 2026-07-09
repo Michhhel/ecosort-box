@@ -389,3 +389,68 @@ def download_images(produits: List[Produit], dossier: str = "images_jumia"):
                 compteur += 1
             except requests.RequestException as e:
                 print(f"  ✗ Échec du téléchargement de {img_url} : {e}")
+
+
+import argparse
+
+def run(raw_text: str, max_items: int = 10, do_download: bool = False):
+    # Étape 1 : compréhension + correction orthographique
+    suggestions, corrected_query = understand_and_correct(raw_text)
+    print_understanding_report(raw_text, suggestions)
+    print(f"Requête envoyée à Jumia : '{corrected_query}'\n")
+
+    # Étape 2 : scraping
+    produits = scrape_jumia_images(corrected_query, max_items=max_items)
+
+    if not produits:
+        print("Aucun produit/image trouvé. Le site a peut-être changé de "
+              "structure HTML, ou bloque les requêtes automatiques.\n"
+              "Essayez d'installer selenium + webdriver-manager pour le "
+              "mode de secours, ou vérifiez l'URL générée manuellement :")
+        print(" ", build_search_url(corrected_query))
+        return produits
+
+    print(f"{len(produits)} produit(s) trouvé(s) :\n")
+    for i, p in enumerate(produits, 1):
+        print(f"{i}. {p.nom}")
+        print(f"   Lien   : {p.lien}")
+        print(f"   Images : {p.images}")
+        print()
+
+    if do_download:
+        print("Téléchargement des images...")
+        download_images(produits)
+
+    return produits
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Trouve des images d'articles sur Jumia CI à partir "
+                    "d'une phrase en français (avec correction des fautes)."
+    )
+    parser.add_argument(
+        "phrase", nargs="*",
+        help="Phrase décrivant l'article, ex: \"j'ai une motre casio\""
+    )
+    parser.add_argument("--max", type=int, default=10, help="Nombre max de produits")
+    parser.add_argument("--download", action="store_true", help="Télécharger les images trouvées")
+    args = parser.parse_args()
+
+    if args.phrase:
+        texte = " ".join(args.phrase)
+    else:
+        texte = input("Décrivez l'article recherché : ")
+
+    # Demande du nombre d'images souhaité
+    while True:
+        try:
+            max_items = int(input("Combien d'images souhaitez-vous récupérer ? (1 à 50) : "))
+            if 1 <= max_items <= 50:
+                break
+            print("Veuillez saisir un nombre compris entre 1 et 50.")
+        except ValueError:
+            print("Veuillez saisir un nombre valide.")
+
+    run(texte, max_items=max_items, do_download=args.download)
+    
