@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img" aria-label="Bouteille en verre">
+  <desc>materiau:glass — image factice de demonstration (mock)</desc>
+  <rect width="480" height="480" rx="28" fill="#E7F1E7"/>
+  <ellipse cx="240" cy="404" rx="130" ry="16" fill="#000" opacity="0.08"/>
+
+  <rect x="220" y="70" width="40" height="18" rx="5" fill="#7A5230"/>
+  <rect x="226" y="88" width="28" height="56" fill="#2F7A4F"/>
+  <path d="M226 144 q-42 30 -42 78 v150 q0 30 30 30 h52 q30 0 30 -30 v-150 q0 -48 -42 -78 z" fill="#37905D"/>
+  <rect x="196" y="252" width="88" height="66" rx="6" fill="#F4EFDC"/>
+  <rect x="210" y="270" width="60" height="9" rx="4" fill="#2F7A4F"/>
+  <rect x="210" y="288" width="40" height="7" rx="3" fill="#8FBF9F"/>
+  <rect x="200" y="170" width="12" height="180" rx="6" fill="#FFFFFF" opacity="0.35"/>
+</svg>

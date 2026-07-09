@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img" aria-label="Carton de colis">
+  <desc>materiau:cardboard — image factice de demonstration (mock)</desc>
+  <rect width="480" height="480" rx="28" fill="#F5EEE3"/>
+  <ellipse cx="240" cy="404" rx="130" ry="16" fill="#000" opacity="0.08"/>
+
+  <path d="M120 208 l120 -56 120 56 -120 56 z" fill="#C89B6C"/>
+  <path d="M120 208 v120 l120 56 v-120 z" fill="#A97B4F"/>
+  <path d="M360 208 v120 l-120 56 v-120 z" fill="#8A6240"/>
+  <path d="M234 149 l12 -6 12 6 v112 l-12 6 -12 -6 z" fill="#E7D9C4"/>
+  <path d="M180 236 l60 28 v34 l-60 -28 z" fill="#E7D9C4" opacity="0.5"/>
+</svg>

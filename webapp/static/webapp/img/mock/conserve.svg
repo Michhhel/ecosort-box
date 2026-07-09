@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img" aria-label="Boite de conserve">
+  <desc>materiau:metal — image factice de demonstration (mock)</desc>
+  <rect width="480" height="480" rx="28" fill="#F3EFE6"/>
+  <ellipse cx="240" cy="404" rx="130" ry="16" fill="#000" opacity="0.08"/>
+
+  <rect x="168" y="130" width="144" height="230" rx="10" fill="#C7CCD1"/>
+  <ellipse cx="240" cy="132" rx="72" ry="14" fill="#AEB5BC"/>
+  <ellipse cx="240" cy="358" rx="72" ry="12" fill="#AEB5BC"/>
+  <rect x="168" y="176" width="144" height="130" fill="#E4573D"/>
+  <circle cx="240" cy="240" r="40" fill="#F6D6CE"/>
+  <circle cx="240" cy="240" r="26" fill="#C0392B"/>
+  <path d="M240 214 q6 -14 18 -16" stroke="#2F7A4F" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <rect x="182" y="150" width="10" height="196" rx="5" fill="#FFFFFF" opacity="0.5"/>
+</svg>

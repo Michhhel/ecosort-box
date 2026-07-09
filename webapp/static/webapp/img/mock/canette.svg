@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img" aria-label="Canette de soda">
+  <desc>materiau:metal — image factice de demonstration (mock)</desc>
+  <rect width="480" height="480" rx="28" fill="#FBE9E7"/>
+  <ellipse cx="240" cy="404" rx="130" ry="16" fill="#000" opacity="0.08"/>
+
+  <path d="M176 118 h128 l10 16 v220 l-10 16 h-128 l-10 -16 v-220 z" fill="#D8DCE0"/>
+  <ellipse cx="240" cy="118" rx="74" ry="14" fill="#B9BFC6"/>
+  <ellipse cx="240" cy="118" rx="58" ry="10" fill="#CFD4D9"/>
+  <rect x="166" y="196" width="148" height="96" fill="#D64541"/>
+  <circle cx="240" cy="244" r="30" fill="#FBE9E7"/>
+  <path d="M228 232 l28 12 -28 12 z" fill="#D64541"/>
+  <rect x="180" y="140" width="14" height="200" rx="7" fill="#FFFFFF" opacity="0.5"/>
+</svg>

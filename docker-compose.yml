@@ -1,0 +1,15 @@
+# Évaluation prof (alternative) :  docker-compose up -d --build
+# Application disponible sur http://localhost:8501
+services:
+  web:
+    build: .
+    ports:
+      - "8501:8501"    # hôte:conteneur — modifiable librement, ex. "8000:8501"
+    environment:
+      - DEBUG=0
+      # - DJANGO_SECRET_KEY=change-moi-en-production
+    # Pour conserver les retours utilisateurs (var/feedback : images + journal)
+    # d'un redémarrage du conteneur à l'autre, décommenter les 2 lignes :
+    # volumes:
+    #   - ./var:/app/var
+    restart: unless-stopped

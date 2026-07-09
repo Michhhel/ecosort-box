@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img" aria-label="Magazine">
+  <desc>materiau:paper — image factice de demonstration (mock)</desc>
+  <rect width="480" height="480" rx="28" fill="#EEE9F5"/>
+  <ellipse cx="240" cy="404" rx="130" ry="16" fill="#000" opacity="0.08"/>
+
+  <rect x="150" y="110" width="180" height="250" rx="10" fill="#7B5CB8"/>
+  <path d="M150 250 l180 -80 v190 h-180 z" fill="#5A3F94" opacity="0.7"/>
+  <rect x="170" y="132" width="120" height="26" rx="6" fill="#FFFFFF"/>
+  <circle cx="240" cy="250" r="42" fill="#F2B33D"/>
+  <rect x="170" y="316" width="90" height="10" rx="5" fill="#FFFFFF" opacity="0.85"/>
+  <rect x="170" y="334" width="60" height="8" rx="4" fill="#FFFFFF" opacity="0.6"/>
+</svg>

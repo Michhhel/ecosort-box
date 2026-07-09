@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img" aria-label="Journal">
+  <desc>materiau:paper — image factice de demonstration (mock)</desc>
+  <rect width="480" height="480" rx="28" fill="#F2F0E9"/>
+  <ellipse cx="240" cy="404" rx="130" ry="16" fill="#000" opacity="0.08"/>
+
+  <rect x="120" y="150" width="240" height="180" rx="8" fill="#FBFAF4" transform="rotate(-3 240 240)"/>
+  <rect x="138" y="172" width="120" height="22" rx="4" fill="#182420" transform="rotate(-3 240 240)"/>
+  <rect x="138" y="206" width="90" height="60" rx="4" fill="#C9CCC0" transform="rotate(-3 240 240)"/>
+  <g transform="rotate(-3 240 240)" fill="#9AA096">
+    <rect x="240" y="206" width="104" height="8" rx="4"/>
+    <rect x="240" y="222" width="104" height="8" rx="4"/>
+    <rect x="240" y="238" width="80" height="8" rx="4"/>
+    <rect x="138" y="284" width="206" height="8" rx="4"/>
+    <rect x="138" y="300" width="160" height="8" rx="4"/>
+  </g>
+</svg>
