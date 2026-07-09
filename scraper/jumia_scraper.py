@@ -38,7 +38,6 @@ PRODUCT_VOCAB = [
     "aspirateur", "moto", "velo", "pneu", "jouet", "couche", "biberon",
 ]
 
-
 # -*- coding: utf-8 -*-
 """
 text_understanding.py
