@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img" aria-label="Chargeur USB">
+  <desc>materiau:electronique — image factice de demonstration (mock)</desc>
+  <rect width="480" height="480" rx="28" fill="#EDEDF3"/>
+  <ellipse cx="240" cy="404" rx="130" ry="16" fill="#000" opacity="0.08"/>
+
+  <rect x="176" y="120" width="128" height="128" rx="24" fill="#FFFFFF" stroke="#D3D3E0" stroke-width="4"/>
+  <rect x="216" y="96" width="14" height="30" rx="6" fill="#9AA3AB"/>
+  <rect x="252" y="96" width="14" height="30" rx="6" fill="#9AA3AB"/>
+  <path d="M252 168 l-26 40 h20 l-16 34 44 -50 h-22 l18 -24 z" fill="#F2B33D"/>
+  <path d="M240 248 q0 60 -60 66 q-50 6 -50 46" stroke="#3B4553" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <rect x="118" y="352" width="26" height="34" rx="8" fill="#3B4553"/>
+</svg>

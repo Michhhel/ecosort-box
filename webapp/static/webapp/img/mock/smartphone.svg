@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img" aria-label="Smartphone">
+  <desc>materiau:electronique — image factice de demonstration (mock)</desc>
+  <rect width="480" height="480" rx="28" fill="#E6E9EE"/>
+  <ellipse cx="240" cy="404" rx="130" ry="16" fill="#000" opacity="0.08"/>
+
+  <rect x="172" y="96" width="136" height="272" rx="26" fill="#1E2733"/>
+  <rect x="184" y="112" width="112" height="230" rx="14" fill="#3B82C4"/>
+  <circle cx="240" cy="128" r="6" fill="#0F1620"/>
+  <g fill="#FFFFFF" opacity="0.9">
+    <rect x="200" y="150" width="36" height="36" rx="9"/>
+    <rect x="244" y="150" width="36" height="36" rx="9" opacity="0.7"/>
+    <rect x="200" y="194" width="36" height="36" rx="9" opacity="0.55"/>
+    <rect x="244" y="194" width="36" height="36" rx="9" opacity="0.4"/>
+  </g>
+  <rect x="214" y="326" width="52" height="6" rx="3" fill="#FFFFFF" opacity="0.7"/>
+</svg>

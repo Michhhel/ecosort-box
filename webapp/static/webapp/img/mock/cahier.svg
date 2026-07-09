@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img" aria-label="Cahier">
+  <desc>materiau:paper — image factice de demonstration (mock)</desc>
+  <rect width="480" height="480" rx="28" fill="#FBF0E4"/>
+  <ellipse cx="240" cy="404" rx="130" ry="16" fill="#000" opacity="0.08"/>
+
+  <rect x="156" y="112" width="180" height="250" rx="12" fill="#E58F4E"/>
+  <rect x="156" y="112" width="34" height="250" rx="12" fill="#C9723A"/>
+  <g fill="#FBF0E4">
+    <circle cx="173" cy="150" r="6"/><circle cx="173" cy="190" r="6"/>
+    <circle cx="173" cy="230" r="6"/><circle cx="173" cy="270" r="6"/>
+    <circle cx="173" cy="310" r="6"/>
+  </g>
+  <rect x="212" y="150" width="100" height="14" rx="7" fill="#FFFFFF"/>
+  <rect x="212" y="184" width="100" height="8" rx="4" fill="#FBF0E4" opacity="0.8"/>
+  <rect x="212" y="202" width="76" height="8" rx="4" fill="#FBF0E4" opacity="0.8"/>
+</svg>

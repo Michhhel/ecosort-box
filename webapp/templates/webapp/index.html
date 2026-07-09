@@ -1,0 +1,174 @@
+{% load static %}<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <!-- Applique le thème mémorisé AVANT le premier rendu (évite le flash) -->
+  <script>
+    (function () {
+      var theme = null;
+      try { theme = localStorage.getItem("ecosort-theme"); } catch (e) {}
+      if (theme !== "jour" && theme !== "nuit" && theme !== "gris") {
+        theme = (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches) ? "nuit" : "jour";
+      }
+      document.documentElement.dataset.theme = theme;
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>EcoSort-BOX — la bonne poubelle en trois messages</title>
+  <meta name="description" content="Cherche un produit ou envoie une photo, obtiens sa consigne de tri.">
+
+  <!-- Typographies : Bricolage Grotesque (titres) + Instrument Sans (texte) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Carousel Splide.js (léger, via CDN — pas de build step) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+
+  <link rel="stylesheet" href="{% static 'webapp/css/style.css' %}">
+  <link rel="icon" href="{% static 'webapp/img/v1.png' %}">
+</head>
+<body>
+
+  <header class="entete">
+    <a class="marque" href="/">
+      <!-- Logo maison (webapp/static/webapp/img/v1.png). Si le fichier
+           manque, on retombe sur la pastille ♻ d'origine. -->
+      <img class="marque-logo" src="{% static 'webapp/img/v1.png' %}" alt="Logo EcoSort-BOX"
+           onerror="this.hidden=true;this.nextElementSibling.hidden=false;">
+      <span class="marque-pastille" hidden aria-hidden="true">♻</span>
+      <span class="marque-nom">EcoSort<em>-BOX</em></span>
+    </a>
+    <div class="entete-droite">
+      <div class="themes" role="group" aria-label="Thème d'affichage">
+        <button class="theme-btn" type="button" data-theme="jour" aria-pressed="false" title="Mode jour">☀️</button>
+        <button class="theme-btn" type="button" data-theme="nuit" aria-pressed="false" title="Mode nuit">🌙</button>
+        <button class="theme-btn" type="button" data-theme="gris" aria-pressed="false" title="Dégradé de gris">◐</button>
+      </div>
+      <span class="badge-mode" title="Les modules scraping et IA sont simulés en attendant le code des coéquipiers.">démo · modules simulés</span>
+    </div>
+  </header>
+
+  <main class="scene">
+    <ol id="fil" class="fil" aria-live="polite" aria-label="Fil de discussion">
+      <!-- Message d'accueil du bot -->
+      <li class="message message--bot">
+        <span class="avatar" aria-hidden="true">♻</span>
+        <div class="bulle">
+          <p><strong>Salut !</strong> Dis-moi quel produit tu veux jeter — par exemple
+          « bouteille d'eau » — ou envoie directement une photo avec le bouton
+          appareil photo, et je te dirai dans quelle poubelle il va.</p>
+        </div>
+      </li>
+    </ol>
+
+    <!-- Suggestions du premier écran -->
+    <div id="suggestions" class="suggestions" role="group" aria-label="Exemples de recherche">
+      <button class="puce" type="button" data-mot="bouteille d'eau">bouteille d'eau</button>
+      <button class="puce" type="button" data-mot="pot de confiture">pot de confiture</button>
+      <button class="puce" type="button" data-mot="écouteurs">écouteurs</button>
+      <button class="puce" type="button" data-mot="journal">journal</button>
+      <button class="puce" type="button" data-mot="sachet plastique">sachet plastique</button>
+    </div>
+  </main>
+
+  <!-- Barre de saisie façon chat -->
+  <div class="saisie">
+    <form id="form-recherche" class="saisie-form" autocomplete="off">
+      <button id="bouton-photo" type="button" aria-label="Analyser une photo de ma galerie ou de mes fichiers"
+              title="Analyser une photo de ma galerie ou de mes fichiers">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+      </button>
+      <input id="champ-mot-cle" type="text" name="mot_cle" maxlength="100"
+             placeholder="Quel produit veux-tu trier ?"
+             aria-label="Produit à rechercher sur Jumia" required>
+      <button id="bouton-envoyer" type="submit" aria-label="Rechercher">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/>
+        </svg>
+      </button>
+    </form>
+    <p class="saisie-note">Recherche en direct sur Jumia · classification IA · ou envoie ta propre photo</p>
+  </div>
+
+  <!-- Sélecteur de fichier caché (galerie / appareil photo sur mobile) -->
+  <input id="champ-photo" type="file" accept="image/*" hidden>
+
+  <!-- ====== Gabarits clonés par app.js ====== -->
+
+  <template id="gabarit-carousel">
+    <li class="message message--bot message--large">
+      <span class="avatar" aria-hidden="true">♻</span>
+      <div class="bulle bulle--carousel">
+        <p class="carousel-intro"></p>
+        <section class="splide" aria-label="Produits trouvés sur Jumia">
+          <div class="splide__track">
+            <ul class="splide__list"></ul>
+          </div>
+        </section>
+        <p class="carousel-aide">Clique sur le produit qui correspond.</p>
+        <div class="carousel-actions">
+          <button class="action-secondaire action-autres" type="button">Voir d'autres produits</button>
+          <button class="action-secondaire action-photo" type="button">Aucun ne correspond ? Analyser ma photo</button>
+        </div>
+      </div>
+    </li>
+  </template>
+
+  <template id="gabarit-produit">
+    <li class="splide__slide">
+      <button class="produit" type="button">
+        <span class="produit-visuel"><img alt="" loading="lazy"></span>
+        <span class="produit-titre"></span>
+        <span class="produit-action">Choisir ce produit</span>
+      </button>
+    </li>
+  </template>
+
+  <template id="gabarit-verdict">
+    <li class="message message--bot message--large">
+      <span class="avatar" aria-hidden="true">♻</span>
+      <div class="bulle bulle--verdict">
+        <article class="verdict">
+          <div class="verdict-pastille" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+              <path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/>
+              <path d="M10 11v6"/><path d="M14 11v6"/>
+            </svg>
+          </div>
+          <p class="verdict-sur-titre">Consigne de tri</p>
+          <h2 class="verdict-categorie"></h2>
+          <p class="verdict-detail"></p>
+          <div class="verdict-confiance">
+            <div class="jauge"><div class="jauge-remplissage"></div></div>
+            <span class="jauge-libelle"></span>
+          </div>
+
+          <!-- Retour utilisateur : confirme ou conteste la prédiction -->
+          <div class="verdict-retour">
+            <p class="retour-question">Cette consigne te paraît-elle correcte ?</p>
+            <div class="retour-boutons">
+              <button class="retour-btn retour-oui" type="button">👍 Oui, c'est bon</button>
+              <button class="retour-btn retour-non" type="button">👎 Non, je corrige</button>
+            </div>
+            <div class="retour-choix" hidden>
+              <p>Quelle est la bonne poubelle selon toi ?</p>
+              <div class="retour-poubelles"></div>
+            </div>
+          </div>
+
+          <button class="verdict-rejouer" type="button">Trier un autre produit</button>
+        </article>
+      </div>
+    </li>
+  </template>
+
+  <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+  <script src="{% static 'webapp/js/app.js' %}" defer></script>
+</body>
+</html>

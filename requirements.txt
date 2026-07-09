@@ -1,26 +1,11 @@
-# --- FRAMEWORK WEB & CONFIGURATION ---
-django
-python-dotenv
-psycopg2-binary
+# --- Partie web (mon périmètre) ------------------------------------------
+Django>=5.0,<6.0
+gunicorn>=22.0          # serveur WSGI de production dans Docker
+whitenoise>=6.6         # sert les fichiers statiques sans nginx
+requests>=2.31          # téléchargement des images produits (vue classify)
 
-# --- WEB SCRAPING & SÉLECTION DE DONNÉES ---
-requests
-beautifulsoup4
-scrapy
-lxml
-selenium
-webdriver-manager
-
-# --- COMPRÉHENSION / CORRECTION ORTHOGRAPHIQUE (scraper Jumia) ---
-rapidfuzz
-pyspellchecker
-
-# --- DATA SCIENCE & PIPELINES ---
-numpy
-pandas
-scikit-learn
-
-# --- DEEP LEARNING (TensorFlow/Keras - modele MobileNetV2) ---
-tensorflow
-pillow
-matplotlib
+# --- À décommenter quand les vrais modules des coéquipiers arriveront ----
+tensorflow-cpu>=2.16    # ml_model : version CPU (pas de GPU en déploiement)
+pillow>=10.0            # ml_model : décodage des images (classifier.py)
+# beautifulsoup4>=4.12  # scraper  : selon la solution retenue par le coéquipier
+# lxml>=5.0

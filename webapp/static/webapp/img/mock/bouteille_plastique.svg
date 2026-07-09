@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img" aria-label="Bouteille en plastique">
+  <desc>materiau:plastic — image factice de demonstration (mock)</desc>
+  <rect width="480" height="480" rx="28" fill="#E4EEF6"/>
+  <ellipse cx="240" cy="404" rx="130" ry="16" fill="#000" opacity="0.08"/>
+
+  <rect x="212" y="88" width="56" height="26" rx="8" fill="#2F7FD6"/>
+  <rect x="220" y="112" width="40" height="34" fill="#BFDCF2"/>
+  <path d="M196 146 h88 q14 22 14 48 v178 q0 30 -30 30 h-56 q-30 0 -30 -30 v-178 q0 -26 14 -48 z" fill="#CBE3F5"/>
+  <rect x="196" y="238" width="112" height="72" fill="#2F7FD6"/>
+  <rect x="214" y="258" width="84" height="10" rx="5" fill="#EAF4FC"/>
+  <rect x="214" y="278" width="56" height="8" rx="4" fill="#EAF4FC" opacity="0.8"/>
+  <rect x="216" y="160" width="14" height="150" rx="7" fill="#FFFFFF" opacity="0.55"/>
+</svg>
