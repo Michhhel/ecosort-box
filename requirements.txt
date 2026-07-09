@@ -1,0 +1,26 @@
+# --- FRAMEWORK WEB & CONFIGURATION ---
+django
+python-dotenv
+psycopg2-binary
+
+# --- WEB SCRAPING & SÉLECTION DE DONNÉES ---
+requests
+beautifulsoup4
+scrapy
+lxml
+selenium
+webdriver-manager
+
+# --- COMPRÉHENSION / CORRECTION ORTHOGRAPHIQUE (scraper Jumia) ---
+rapidfuzz
+pyspellchecker
+
+# --- DATA SCIENCE & PIPELINES ---
+numpy
+pandas
+scikit-learn
+
+# --- DEEP LEARNING (TensorFlow/Keras - modele MobileNetV2) ---
+tensorflow
+pillow
+matplotlib
