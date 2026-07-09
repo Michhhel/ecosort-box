@@ -8,3 +8,16 @@ requests>=2.31          # téléchargement des images produits (vue classify)
 # tensorflow-cpu>=2.16  # ml_model : version CPU (pas de GPU en déploiement)
 # beautifulsoup4>=4.12  # scraper  : selon la solution retenue par le coéquipier
 # lxml>=5.0
+# --- Requêtes HTTP & parsing HTML (scraping "classique") ---
+requests
+beautifulsoup4
+lxml
+ 
+# --- Compréhension / correction orthographique ---
+rapidfuzz
+pyspellchecker
+ 
+# --- Repli scraping pour le contenu rendu en JavaScript ---
+selenium
+webdriver-manager
+ 
