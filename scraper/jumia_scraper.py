@@ -1,4 +1,52 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+jumia_image_scraper.py
+=======================
 
+Prend en entrée une phrase libre en français décrivant un article
+(ex: "j'ai une motre casio"), corrige les fautes de frappe probables,
+scrape Jumia CI pour trouver les articles correspondants (15 maximum),
+et affiche les résultats par pages de 5 (avec navigation dans le reste).
+
+La fonction scrape_jumia_images() renvoie une liste de dictionnaires
+au format [{"nom": ..., "image": ...}, ...], directement exploitable
+par une interface web.
+
+Installation : pip install -r requirements.txt
+Utilisation  :
+    python jumia_image_scraper.py "j'ai une motre casio"
+    python jumia_image_scraper.py "je cherche un telefone samsung" --download
+"""
+
+import argparse
+import os
+import re
+import time
+import unicodedata
+from dataclasses import dataclass, field
+from typing import List, Optional
+from urllib.parse import quote_plus, urljoin
+
+import requests
+from bs4 import BeautifulSoup
+
+try:
+    from rapidfuzz import fuzz, process as rf_process
+    HAS_RAPIDFUZZ = True
+except ImportError:
+    HAS_RAPIDFUZZ = False
+
+try:
+    from spellchecker import SpellChecker
+    HAS_SPELLCHECKER = True
+except ImportError:
+    HAS_SPELLCHECKER = False
+
+
+# ============================================================================
+# 1) CONFIGURATION
+# ============================================================================
 
 JUMIA_BASE_URL = "https://www.jumia.ci"
 # Point d'entrée standard de la recherche sur les sites Jumia
@@ -12,13 +60,14 @@ HEADERS = {
     "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
 }
 
-
+# Mots à retirer d'une phrase du type "j'ai une montre casio"
+# pour ne garder que les mots "produit" utiles à la recherche.
 STOPWORDS_FR = {
     "j'ai", "jai", "j", "ai", "je", "veux", "voudrais", "cherche",
     "recherche", "voici", "voila", "il", "me", "faut", "un", "une",
     "des", "de", "du", "la", "le", "les", "et", "avec", "pour",
     "svp", "sil", "vous", "plait", "plaît", "acheter", "achete",
-    "acheté", "trouve", "trouver", "montre", "moi", 
+    "acheté", "trouve", "trouver", "montre", "moi",
 }
 
 # Categories frequentes egalement toutes les categories frequentes sur Jumia
@@ -38,37 +87,18 @@ PRODUCT_VOCAB = [
     "aspirateur", "moto", "velo", "pneu", "jouet", "couche", "biberon",
 ]
 
-# -*- coding: utf-8 -*-
-"""
-text_understanding.py
+# Nombre maximum d'articles recherchés sur Jumia à chaque requête.
+# Ce nombre est fixe : on ne le demande plus à l'utilisateur.
+MAX_ITEMS = 15
+
+# Nombre d'articles affichés par page dans le mode CLI (les 5 premiers,
+# puis l'utilisateur peut parcourir le reste par lots de 5).
+DISPLAY_PAGE_SIZE = 5
 
 
-
-⚠️ Import à ajouter en haut de CE fichier une fois séparé :
-    from config import STOPWORDS_FR, PRODUCT_VOCAB
-"""
-
-import re
-import unicodedata
-from dataclasses import dataclass, field
-from typing import List
-
-
-
-try:
-    from rapidfuzz import fuzz, process as rf_process
-    HAS_RAPIDFUZZ = True
-except ImportError:
-    HAS_RAPIDFUZZ = False
-
-try:
-    from spellchecker import SpellChecker
-    HAS_SPELLCHECKER = True
-except ImportError:
-    HAS_SPELLCHECKER = False
-
-
-
+# ============================================================================
+# 2) NETTOYAGE + COMPRÉHENSION / CORRECTION ORTHOGRAPHIQUE
+# ============================================================================
 
 def strip_accents(text: str) -> str:
     """Retire les accents pour faciliter les comparaisons (motre/montre...)."""
@@ -208,25 +238,13 @@ def print_understanding_report(raw_text: str, suggestions: List[SpellSuggestion]
     print("—" * 60)
 
 
-
-
-import os
-import re
-import time
-from dataclasses import dataclass
-from typing import List, Optional
-from urllib.parse import quote_plus, urljoin
-
-import requests
-from bs4 import BeautifulSoup
-
-
-
-
-
+# ============================================================================
+# 3) SCRAPING JUMIA
+# ============================================================================
 
 @dataclass
 class Produit:
+    """Représentation interne d'un produit trouvé (usage interne)."""
     nom: str
     lien: str
     images: List[str]
@@ -255,7 +273,7 @@ def _extract_image_url(img_tag) -> Optional[str]:
     return None
 
 
-def scrape_with_requests(query: str, max_items: int = 10) -> List[Produit]:
+def scrape_with_requests(query: str, max_items: int = MAX_ITEMS) -> List[Produit]:
     """
     Scraping "classique" via requests + BeautifulSoup.
     Fonctionne si la page de résultats est pré-rendue côté serveur
@@ -299,7 +317,7 @@ def scrape_with_requests(query: str, max_items: int = 10) -> List[Produit]:
     return produits
 
 
-def scrape_with_selenium(query: str, max_items: int = 10) -> List[Produit]:
+def scrape_with_selenium(query: str, max_items: int = MAX_ITEMS) -> List[Produit]:
     """
     Mode de secours : si scrape_with_requests() ne renvoie rien
     (page rendue en JavaScript, contenu chargé dynamiquement, etc.),
@@ -358,70 +376,132 @@ def scrape_with_selenium(query: str, max_items: int = 10) -> List[Produit]:
     return produits
 
 
-def scrape_jumia_images(query: str, max_items: int = 10) -> List[Produit]:
+def _produits_vers_dicts(produits: List[Produit]) -> List[dict]:
+    """
+    Convertit la liste interne de Produit en liste de dictionnaires
+    simples, au format attendu par l'interface web :
+        {"nom": "...", "image": "... ou None"}
+    """
+    return [
+        {"nom": p.nom, "image": (p.images[0] if p.images else None)}
+        for p in produits
+    ]
+
+
+def scrape_jumia_images(query: str, max_items: int = MAX_ITEMS) -> List[dict]:
     """
     Point d'entrée principal du scraping : essaie d'abord requests,
     puis bascule automatiquement sur Selenium si rien n'est trouvé.
+
+    Recherche toujours au maximum `max_items` articles (15 par défaut).
+
+    Retourne une LISTE DE DICTIONNAIRES au format :
+        [{"nom": "Montre Casio ...", "image": "https://..."}, ...]
     """
     produits = scrape_with_requests(query, max_items=max_items)
     if not produits:
         print("[i] Aucun résultat via requests seul, tentative avec "
               "un navigateur headless (Selenium)...")
         produits = scrape_with_selenium(query, max_items=max_items)
-    return produits
+    return _produits_vers_dicts(produits)
 
 
+# ============================================================================
+# 4) TÉLÉCHARGEMENT DES IMAGES (OPTIONNEL)
+# ============================================================================
 
-def download_images(produits: List[Produit], dossier: str = "images_jumia"):
+def download_images(articles: List[dict], dossier: str = "images_jumia"):
+    """
+    Télécharge localement les images des articles fournis.
+    `articles` est la liste de dictionnaires {"nom": ..., "image": ...}
+    renvoyée par scrape_jumia_images().
+    """
     os.makedirs(dossier, exist_ok=True)
     compteur = 0
-    for produit in produits:
-        for img_url in produit.images:
-            try:
-                resp = requests.get(img_url, headers=HEADERS, timeout=15)
-                resp.raise_for_status()
-                ext = os.path.splitext(img_url.split("?")[0])[1] or ".jpg"
-                nom_fichier = re.sub(r"[^a-zA-Z0-9_-]", "_", produit.nom)[:50]
-                chemin = os.path.join(dossier, f"{nom_fichier}_{compteur}{ext}")
-                with open(chemin, "wb") as f:
-                    f.write(resp.content)
-                print(f"  ✓ Image téléchargée : {chemin}")
-                compteur += 1
-            except requests.RequestException as e:
-                print(f"  ✗ Échec du téléchargement de {img_url} : {e}")
+    for article in articles:
+        img_url = article.get("image")
+        if not img_url:
+            continue
+        try:
+            resp = requests.get(img_url, headers=HEADERS, timeout=15)
+            resp.raise_for_status()
+            ext = os.path.splitext(img_url.split("?")[0])[1] or ".jpg"
+            nom_fichier = re.sub(r"[^a-zA-Z0-9_-]", "_", article.get("nom", "article"))[:50]
+            chemin = os.path.join(dossier, f"{nom_fichier}_{compteur}{ext}")
+            with open(chemin, "wb") as f:
+                f.write(resp.content)
+            print(f"  ✓ Image téléchargée : {chemin}")
+            compteur += 1
+        except requests.RequestException as e:
+            print(f"  ✗ Échec du téléchargement de {img_url} : {e}")
 
 
-import argparse
+# ============================================================================
+# 5) PROGRAMME PRINCIPAL (CLI + pagination)
+# ============================================================================
 
-def run(raw_text: str, max_items: int = 10, do_download: bool = False):
+def display_articles_paginated(articles, page_size=DISPLAY_PAGE_SIZE):
+    """
+    Affiche les articles par pages de `page_size` (5 par défaut).
+    Après chaque page, demande à l'utilisateur s'il veut voir la suite.
+    """
+    total = len(articles)
+    index = 0
+    while index < total:
+        page = articles[index:index + page_size]
+        for i, article in enumerate(page, start=index + 1):
+            print(f"{i}. {article['nom']}")
+            print(f"   Image : {article['image']}")
+            print()
+        index += page_size
+
+        if index < total:
+            reste = total - index
+            reponse = input(
+                f"Afficher les {min(page_size, reste)} articles suivants "
+                f"({reste} restants) ? (o/n) : "
+            ).strip().lower()
+            if reponse != "o":
+                break
+
+
+def run(raw_text: str, do_download: bool = False):
+    """
+    Exécute le pipeline complet :
+      1. Compréhension + correction orthographique de la phrase saisie.
+      2. Scraping de Jumia CI (toujours 15 articles maximum) avec la
+         requête corrigée.
+      3. Affichage paginé des résultats (5 par 5) et téléchargement
+         optionnel.
+
+    Retourne la liste complète des articles trouvés au format
+    [{"nom": ..., "image": ...}, ...] — utile pour l'interface web.
+    """
     # Étape 1 : compréhension + correction orthographique
     suggestions, corrected_query = understand_and_correct(raw_text)
     print_understanding_report(raw_text, suggestions)
     print(f"Requête envoyée à Jumia : '{corrected_query}'\n")
 
-    # Étape 2 : scraping
-    produits = scrape_jumia_images(corrected_query, max_items=max_items)
+    # Étape 2 : scraping (toujours 15 articles maximum)
+    articles = scrape_jumia_images(corrected_query, max_items=MAX_ITEMS)
 
-    if not produits:
+    if not articles:
         print("Aucun produit/image trouvé. Le site a peut-être changé de "
               "structure HTML, ou bloque les requêtes automatiques.\n"
               "Essayez d'installer selenium + webdriver-manager pour le "
               "mode de secours, ou vérifiez l'URL générée manuellement :")
         print(" ", build_search_url(corrected_query))
-        return produits
+        return articles
 
-    print(f"{len(produits)} produit(s) trouvé(s) :\n")
-    for i, p in enumerate(produits, 1):
-        print(f"{i}. {p.nom}")
-        print(f"   Lien   : {p.lien}")
-        print(f"   Images : {p.images}")
-        print()
+    # Étape 3 : affichage paginé (5 premiers, puis navigation au besoin)
+    print(f"{len(articles)} article(s) trouvé(s) :\n")
+    display_articles_paginated(articles)
 
     if do_download:
         print("Téléchargement des images...")
-        download_images(produits)
+        download_images(articles)
 
-    return produits
+    return articles
 
 
 if __name__ == "__main__":
@@ -433,7 +513,6 @@ if __name__ == "__main__":
         "phrase", nargs="*",
         help="Phrase décrivant l'article, ex: \"j'ai une motre casio\""
     )
-    parser.add_argument("--max", type=int, default=10, help="Nombre max de produits")
     parser.add_argument("--download", action="store_true", help="Télécharger les images trouvées")
     args = parser.parse_args()
 
@@ -442,15 +521,4 @@ if __name__ == "__main__":
     else:
         texte = input("Décrivez l'article recherché : ")
 
-    # Demande du nombre d'images souhaité
-    while True:
-        try:
-            max_items = int(input("Combien d'images souhaitez-vous récupérer ? (1 à 50) : "))
-            if 1 <= max_items <= 50:
-                break
-            print("Veuillez saisir un nombre compris entre 1 et 50.")
-        except ValueError:
-            print("Veuillez saisir un nombre valide.")
-
-    run(texte, max_items=max_items, do_download=args.download)
-    
+    run(texte, do_download=args.download)
