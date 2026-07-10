@@ -5,7 +5,8 @@ whitenoise>=6.6         # sert les fichiers statiques sans nginx
 requests>=2.31          # téléchargement des images produits (vue classify)
 
 # --- À décommenter quand les vrais modules des coéquipiers arriveront ----
-# tensorflow-cpu>=2.16  # ml_model : version CPU (pas de GPU en déploiement)
+tensorflow-cpu>=2.16    # ml_model : version CPU (pas de GPU en déploiement)
+pillow>=10.0            # ml_model : décodage des images (classifier.py)
 # beautifulsoup4>=4.12  # scraper  : selon la solution retenue par le coéquipier
 # lxml>=5.0
 # --- Requêtes HTTP & parsing HTML (scraping "classique") ---

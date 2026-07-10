@@ -33,3 +33,8 @@ var/
 
 
 MODIFICATIONS.md
+# --- Exception (partie ml) ---------------------------------------------------
+# Le modele FINAL est un livrable : le Dockerfile fait "COPY . ." et
+# l'enseignant doit pouvoir "cloner + docker build" sans etape manuelle.
+# La regle *.h5 ci-dessus continue de bloquer les modeles d'experimentation.
+!ml_model/modele_eco_sort.h5
