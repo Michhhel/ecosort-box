@@ -1,25 +1,23 @@
-# --- Partie web (mon périmètre) ------------------------------------------
+# --- Partie web -------------------------------------------------------------
 Django>=5.0,<6.0
 gunicorn>=22.0          # serveur WSGI de production dans Docker
 whitenoise>=6.6         # sert les fichiers statiques sans nginx
-requests>=2.31          # téléchargement des images produits (vue classify)
+requests>=2.31          # téléchargement des images produits (vue classify) + scraping
 
-# --- À décommenter quand les vrais modules des coéquipiers arriveront ----
-tensorflow-cpu>=2.16    # ml_model : version CPU (pas de GPU en déploiement)
-pillow>=10.0            # ml_model : décodage des images (classifier.py)
-# beautifulsoup4>=4.12  # scraper  : selon la solution retenue par le coéquipier
-# lxml>=5.0
-# --- Requêtes HTTP & parsing HTML (scraping "classique") ---
-requests
-beautifulsoup4
-lxml
- 
-# --- Compréhension / correction orthographique ---
-rapidfuzz
-spellchecker
-pyspellchecker
- 
-# --- Repli scraping pour le contenu rendu en JavaScript ---
+# --- Modèle de deep learning (ml_model) --------------------------------------
+tensorflow-cpu>=2.16    # version CPU (pas de GPU en déploiement)
+pillow>=10.0            # décodage des images (classifier.py)
+
+# --- Scraping Jumia (scraper) -------------------------------------------------
+beautifulsoup4          # parsing HTML
+lxml                    # parseur rapide pour BeautifulSoup
+
+# --- Compréhension / correction orthographique --------------------------------
+rapidfuzz               # correction via le vocabulaire métier (motre -> montre)
+pyspellchecker          # correcteur orthographique français généraliste
+
+# --- Repli scraping pour le contenu rendu en JavaScript (optionnel) -----------
+# Nécessite un navigateur Chrome installé ; absent de l'image Docker, le
+# scraper bascule proprement sur [] si ce repli n'est pas utilisable.
 selenium
 webdriver-manager
- 

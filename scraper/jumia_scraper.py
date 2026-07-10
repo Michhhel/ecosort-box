@@ -67,14 +67,18 @@ STOPWORDS_FR = {
     "recherche", "voici", "voila", "il", "me", "faut", "un", "une",
     "des", "de", "du", "la", "le", "les", "et", "avec", "pour",
     "svp", "sil", "vous", "plait", "plaît", "acheter", "achete",
-    "acheté", "trouve", "trouver", "montre", "moi",
+    "acheté", "trouve", "trouver", "moi",
 }
+# NB : "montre" n'est PAS un stopword — c'est aussi un produit (montre Casio) !
+# Les tournures impératives ("montre-moi", "me montrer"...) sont retirées en
+# bloc par _TOURNURES_IMPERATIVES avant le filtrage : on supprime le VERBE
+# montrer sans jamais supprimer le PRODUIT montre.
 
 # Categories frequentes egalement toutes les categories frequentes sur Jumia
 PRODUCT_VOCAB = [
     "montre", "telephone", "smartphone", "ordinateur", "laptop",
     "tablette", "ecouteur", "casque", "chargeur", "cable", "television",
-    "televiseur", "frigo", "refrigerateur", "congelateur", "climatiseur",
+    "televiseur", "tele", "frigo", "refrigerateur", "congelateur", "climatiseur",
     "ventilateur", "cuisiniere", "micro-onde", "mixeur", "blender",
     "chaussure", "sandale", "basket", "vetement", "robe", "chemise",
     "pantalon", "jean", "veste", "sac", "sac a main", "parfum",
@@ -116,6 +120,14 @@ def tokenize(text: str) -> List[str]:
     return tokens
 
 
+# Tournures impératives du verbe "montrer" ("montre-moi une tele",
+# "tu peux me montrer un frigo"). Retirées AVANT la découpe en mots pour ne
+# pas confondre le verbe avec le produit "montre".
+_TOURNURES_IMPERATIVES = re.compile(
+    r"\b(?:montre[sz]?[- ]+moi|me\s+montrer?|montrer)\b"
+)
+
+
 def clean_query(raw_text: str) -> List[str]:
     """
     Extrait de la phrase brute la ou les mots-clés "produit" utiles,
@@ -123,7 +135,8 @@ def clean_query(raw_text: str) -> List[str]:
 
     Exemple : "j'ai une montre casio" -> ["montre", "casio"]
     """
-    tokens = tokenize(raw_text)
+    texte = _TOURNURES_IMPERATIVES.sub(" ", raw_text.lower().replace("’", "'"))
+    tokens = tokenize(texte)
     keywords = []
     for tok in tokens:
         tok_norm = strip_accents(tok)
@@ -145,6 +158,22 @@ class SpellSuggestion:
 
     def __post_init__(self):
         self.was_corrected = self.original.lower() != self.corrected.lower()
+
+
+# Dictionnaire français chargé UNE seule fois (None si indisponible).
+_SPELL_FR = None
+_SPELL_FR_ECHEC = False
+
+
+def _dictionnaire_francais():
+    """Renvoie le SpellChecker français partagé, ou None s'il est indisponible."""
+    global _SPELL_FR, _SPELL_FR_ECHEC
+    if _SPELL_FR is None and not _SPELL_FR_ECHEC and HAS_SPELLCHECKER:
+        try:
+            _SPELL_FR = SpellChecker(language="fr")
+        except Exception:
+            _SPELL_FR_ECHEC = True  # pas de dictionnaire fr local -> on ignore
+    return _SPELL_FR
 
 
 def correct_word(word: str, vocab: List[str] = PRODUCT_VOCAB) -> SpellSuggestion:
@@ -170,6 +199,15 @@ def correct_word(word: str, vocab: List[str] = PRODUCT_VOCAB) -> SpellSuggestion
     # 1) Mot déjà correct
     if word_norm in vocab_norm:
         return SpellSuggestion(word, vocab_norm[word_norm], 100.0, "vocab_metier")
+
+    # 1 bis) GARDE-FOU : un mot français parfaitement valide (pomme, canette,
+    # bocal, verre...) n'est JAMAIS "corrigé" vers le vocabulaire métier.
+    # Sans cette barrière, la similarité de chaînes transformait par exemple
+    # "canette" en "manette" (85 % de ressemblance) et la recherche renvoyait
+    # n'importe quoi. Un mot correct est gardé tel quel.
+    spell = _dictionnaire_francais()
+    if spell is not None and word_l in spell:
+        return SpellSuggestion(word, word, 100.0, "inchange")
 
     # 2) Correction via le vocabulaire métier (rapidfuzz si dispo,
     #    sinon un fallback maison avec difflib)
@@ -197,14 +235,14 @@ def correct_word(word: str, vocab: List[str] = PRODUCT_VOCAB) -> SpellSuggestion
     if best_match and best_score >= 75:
         return SpellSuggestion(word, best_match, round(best_score, 1), "vocab_metier")
 
-    # 3) Repli sur un correcteur orthographique français généraliste
-    if HAS_SPELLCHECKER:
+    # 3) Repli sur un correcteur orthographique français généraliste.
+    # (Si on arrive ici, le mot n'est ni dans le vocabulaire métier, ni un
+    # mot français valide — le dictionnaire partagé a déjà été consulté.)
+    if spell is not None:
         try:
-            spell = SpellChecker(language="fr")
-            if word_l not in spell:
-                suggestion = spell.correction(word_l)
-                if suggestion and suggestion != word_l:
-                    return SpellSuggestion(word, suggestion, 60.0, "dictionnaire_fr")
+            suggestion = spell.correction(word_l)
+            if suggestion and suggestion != word_l:
+                return SpellSuggestion(word, suggestion, 60.0, "dictionnaire_fr")
         except Exception:
             pass  # pas de dictionnaire fr dispo localement -> on ignore
 
@@ -222,6 +260,14 @@ def understand_and_correct(raw_text: str) -> (List[SpellSuggestion], str):
     keywords = clean_query(raw_text)
     suggestions = [correct_word(k) for k in keywords]
     corrected_query = " ".join(s.corrected for s in suggestions)
+
+    # GARDE-FOU : ne JAMAIS renvoyer une requête vide. Une recherche Jumia
+    # sans mot-clé renvoie le catalogue par défaut, donc des produits sans
+    # aucun rapport. Si le nettoyage a tout supprimé, on retombe sur les
+    # mots bruts de la phrase (sans ponctuation).
+    if not corrected_query.strip():
+        corrected_query = " ".join(tokenize(raw_text)).strip()
+
     return suggestions, corrected_query
 
 
@@ -437,7 +483,100 @@ def download_images(articles: List[dict], dossier: str = "images_jumia"):
 
 
 # ============================================================================
-# 5) PROGRAMME PRINCIPAL (CLI + pagination)
+# 5) ADAPTATEUR POUR LE SITE WEB — appelé par webapp/views.py (/api/search)
+# ============================================================================
+#
+# La vue Django attend une fonction `rechercher_produits(mot_cle, page)` qui
+# renvoie une liste de dictionnaires {"titre", "image_url", "produit_url"}.
+# Cette section fait le pont entre ce contrat web et le scraper ci-dessus :
+#
+#   1. la phrase de l'utilisateur est d'abord corrigée (understand_and_correct),
+#   2. Jumia est scrapé UNE SEULE FOIS (15 articles max) et la liste complète
+#      est CONSOLIDÉE en cache mémoire,
+#   3. chaque "page" sert ensuite une tranche de 5 produits de cette liste :
+#      page 1 -> produits 1 à 5, page 2 -> 6 à 10, page 3 -> 11 à 15 ;
+#   4. quand la liste est épuisée, on renvoie [] : l'interface web propose
+#      alors automatiquement à l'utilisateur d'envoyer sa propre photo.
+
+import threading
+from collections import OrderedDict
+
+# Nombre de produits servis au site web à chaque page.
+PAGE_SIZE_WEB = DISPLAY_PAGE_SIZE  # = 5
+
+# Cache mémoire des recherches récentes : {requête corrigée: [produits...]}.
+# Borné (LRU) pour ne pas grossir indéfiniment ; protégé par un verrou car
+# gunicorn sert les requêtes avec plusieurs threads.
+_CACHE_MAX_RECHERCHES = 20
+_cache_recherches: "OrderedDict[str, List[dict]]" = OrderedDict()
+_verrou_cache = threading.Lock()
+
+
+def _scraper_produits_complets(query: str, max_items: int = MAX_ITEMS) -> List[Produit]:
+    """
+    Scrape Jumia : d'abord via requests (rapide), puis repli Selenium si rien.
+    Le repli est enveloppé dans un try/except : si Selenium n'est pas
+    utilisable (ex. pas de Chrome dans le conteneur Docker), on renvoie
+    simplement une liste vide au lieu de faire planter la requête web.
+    """
+    produits = scrape_with_requests(query, max_items=max_items)
+    if not produits:
+        try:
+            produits = scrape_with_selenium(query, max_items=max_items)
+        except Exception as e:
+            print(f"[!] Repli Selenium indisponible : {e}")
+            produits = []
+    return produits
+
+
+def rechercher_produits(mot_cle: str, page: int = 1) -> List[dict]:
+    """
+    Point d'entrée officiel pour le site web (contrat de webapp/views.py).
+
+    Entrée  : phrase libre de l'utilisateur (ex. "j'ai une motre casio")
+              + numéro de page (1 = cinq premiers produits, 2 = les 5
+              suivants de la MÊME liste déjà scrapée, etc.).
+    Sortie  : [{"titre": ..., "image_url": ..., "produit_url": ...}, ...]
+              (au plus PAGE_SIZE_WEB éléments ; [] quand il n'y a plus rien).
+    """
+    # 1) Compréhension + correction orthographique de la phrase saisie.
+    _, requete_corrigee = understand_and_correct(mot_cle)
+    if not requete_corrigee:
+        # Tous les mots étaient des mots de liaison : on garde la phrase brute.
+        requete_corrigee = mot_cle.strip()
+
+    cle_cache = strip_accents(requete_corrigee.lower())
+
+    # 2) Liste consolidée : reprise du cache si la recherche a déjà eu lieu,
+    #    sinon scraping unique de 15 articles maximum.
+    with _verrou_cache:
+        resultats = _cache_recherches.get(cle_cache)
+
+    if resultats is None:
+        produits = _scraper_produits_complets(requete_corrigee)
+        resultats = [
+            {
+                "titre": p.nom,
+                "image_url": p.images[0],
+                "produit_url": p.lien,
+            }
+            for p in produits
+            if p.images  # un produit sans image ne peut pas être affiché
+        ]
+        with _verrou_cache:
+            _cache_recherches[cle_cache] = resultats
+            _cache_recherches.move_to_end(cle_cache)
+            while len(_cache_recherches) > _CACHE_MAX_RECHERCHES:
+                _cache_recherches.popitem(last=False)  # évince la plus ancienne
+
+    # 3) Tranche de 5 correspondant à la page demandée.
+    page = max(1, int(page))
+    debut = (page - 1) * PAGE_SIZE_WEB
+    return resultats[debut:debut + PAGE_SIZE_WEB]
+
+
+# ============================================================================
+# 6) PROGRAMME PRINCIPAL (CLI + pagination)
 # ============================================================================
 
 def display_articles_paginated(articles, page_size=DISPLAY_PAGE_SIZE):
