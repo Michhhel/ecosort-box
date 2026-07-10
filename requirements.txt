@@ -9,3 +9,16 @@ tensorflow-cpu>=2.16    # ml_model : version CPU (pas de GPU en déploiement)
 pillow>=10.0            # ml_model : décodage des images (classifier.py)
 # beautifulsoup4>=4.12  # scraper  : selon la solution retenue par le coéquipier
 # lxml>=5.0
+# --- Requêtes HTTP & parsing HTML (scraping "classique") ---
+requests
+beautifulsoup4
+lxml
+ 
+# --- Compréhension / correction orthographique ---
+rapidfuzz
+pyspellchecker
+ 
+# --- Repli scraping pour le contenu rendu en JavaScript ---
+selenium
+webdriver-manager
+ 
