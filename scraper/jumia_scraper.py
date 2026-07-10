@@ -468,39 +468,25 @@ def display_articles_paginated(articles, page_size=DISPLAY_PAGE_SIZE):
 def run(raw_text: str, do_download: bool = False):
     """
     Exécute le pipeline complet :
-      1. Compréhension + correction orthographique de la phrase saisie.
+      1. Compréhension + correction orthographique de la phrase saisie
+         (en silence, sans affichage du rapport).
       2. Scraping de Jumia CI (toujours 15 articles maximum) avec la
          requête corrigée.
-      3. Affichage paginé des résultats (5 par 5) et téléchargement
-         optionnel.
+      3. Téléchargement optionnel des images.
 
-    Retourne la liste complète des articles trouvés au format
-    [{"nom": ..., "image": ...}, ...] — utile pour l'interface web.
+    La SEULE sortie du script est la liste des articles trouvés, au
+    format [{"nom": ..., "image": ...}, ...] — utile pour l'interface
+    web comme pour un usage en ligne de commande.
     """
-    # Étape 1 : compréhension + correction orthographique
-    suggestions, corrected_query = understand_and_correct(raw_text)
-    print_understanding_report(raw_text, suggestions)
-    print(f"Requête envoyée à Jumia : '{corrected_query}'\n")
+    _, corrected_query = understand_and_correct(raw_text)
 
-    # Étape 2 : scraping (toujours 15 articles maximum)
+    # Scraping (toujours 15 articles maximum)
     articles = scrape_jumia_images(corrected_query, max_items=MAX_ITEMS)
 
-    if not articles:
-        print("Aucun produit/image trouvé. Le site a peut-être changé de "
-              "structure HTML, ou bloque les requêtes automatiques.\n"
-              "Essayez d'installer selenium + webdriver-manager pour le "
-              "mode de secours, ou vérifiez l'URL générée manuellement :")
-        print(" ", build_search_url(corrected_query))
-        return articles
-
-    # Étape 3 : affichage paginé (5 premiers, puis navigation au besoin)
-    print(f"{len(articles)} article(s) trouvé(s) :\n")
-    display_articles_paginated(articles)
-
     if do_download:
-        print("Téléchargement des images...")
         download_images(articles)
 
+    print(articles)
     return articles
 
 
