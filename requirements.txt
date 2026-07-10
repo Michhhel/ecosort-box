@@ -16,6 +16,7 @@ lxml
  
 # --- Compréhension / correction orthographique ---
 rapidfuzz
+spellchecker
 pyspellchecker
  
 # --- Repli scraping pour le contenu rendu en JavaScript ---
