@@ -4,6 +4,13 @@ Application web d'aide au tri sélectif : l'utilisateur cherche un produit (ou e
 
 Interface façon chat (Django + JavaScript vanilla) avec trois thèmes d'affichage (jour, nuit, dégradé de gris), scraping Jumia et classification deep learning intégrés en modules Python internes.
 
+
+### 🎬 Démo
+
+[![Regarder la démo](https://img.youtube.com/vi/16DIoT1YlXU/hqdefault.jpg)](https://www.youtube.com/watch?v=16DIoT1YlXU)
+
+*Clique sur l'image pour lancer la vidéo (YouTube, nouvel onglet).*
+
 ## Lancer l'application
 
 Avec Docker (recommandé — c'est le mode d'évaluation) :
